@@ -25,7 +25,7 @@ This is NOT a TROPHiT SDK - this repo is an open-source contribution to develope
  ```objc
  #import "Adjust.h"  // <==== add this
  ...
- 
+
  - (void)onNotification:(NSNotification*)notification {
      if (![kUnityOnOpenURL isEqualToString:notification.name]) return;
      ...
@@ -75,7 +75,8 @@ This is NOT a TROPHiT SDK - this repo is an open-source contribution to develope
 # Integration
 * Clone/download the repository
 * Copy the entire UnityDeeplinks folder into your Unity project Assets folder
-* Attach the *Assets/UnityDeeplinks/UnityDeeplinks.cs* script to an empty *UnityDeeplinks* game object
+* Attach the *Assets/UnityDeeplinks/UnityDeeplinks.cs* script to an empty game object named *UnityDeeplinks*
+  * **NOTE**: The game object MUST be named *UnityDeeplinks* or otherwise match the name specified in the native plugins.
 
 ## Android
 Subclass the default *UnityPlayerActivity* in order to add deeplink-handling code that marshals deeplinks into your Unity script:
@@ -191,12 +192,12 @@ For those reasons, we provide an implementation to completent AppsFlyer. Assumin
  * Remove *com.appsflyer.GetDeeplinkingActivity* from your AndroidManifest.xml (it uses the concept of a second activity to trigger deeplinks, which we've [discussed earlier](#why-not-handle-deeplinks-in-a-second-activity))
 
 * Copy *Assets/UnityDeeplinks/Android/MyUnityPlayerActivity.java* to *Assets/Plugins/Android/src/MyUnityPlayerActivity.java* and make the following changes in the new copy:
- 
+
  * Change the package name to *com.appsflyer*:
    ```
    package com.appsflyer;
    ```
-   
+
  * Add a call to *AppsFlyerLib.setDeepLinkData* at the beginning of the `onDeeplink` method:
  ```java
  protected void onDeeplink(Intent intent) {
@@ -223,7 +224,7 @@ AppsFlyer.getConversionData();
 ```c
 // IMPL_APP_CONTROLLER_SUBCLASS(AppsFlyerAppController)
 ```
-  
+
 * (AppsFlyer SDK 4.11+): Copy the "important bits" from the above file to *Assets/UnityDeeplinks/iOS/UnityDeeplinks.mm* as follows:
 ```c
 #import "AppsFlyerTracker.h"
