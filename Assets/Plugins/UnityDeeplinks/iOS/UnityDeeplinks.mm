@@ -26,7 +26,7 @@ extern "C" {
 }
 
 
-
+`
 @interface UnityDeeplinksNotificationObserver : NSObject <AppDelegateListener>
 - (void)onNotification:(NSNotification*)notification;
 - (void)onOpenURL:(NSNotification *)notification;
@@ -134,8 +134,8 @@ IMPL_APP_CONTROLLER_SUBCLASS(UnityDeeplinksAppController)
 
 extern "C" {
     
-    static NSString* gameObjectName = @"UnityDeeplinks";
-    static NSString* deeplinkMethodName = @"onDeeplink";
+    static NSString* gameObjectName = @"[UnityDeeplinks]";
+    static NSString* deeplinkMethodName = @"OnDeeplink";
     
     
     void UnityDeeplinks_init(const char* gameObject, const char* deeplinkMethod) {
