@@ -24,6 +24,7 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 Subclass the default *UnityPlayerActivity* in order to add deeplink-handling code that marshals deeplinks into your Unity script:
 
 * Replace the default UnityPlayerActivity in your Assets/Plugins/Android/AndroidManifest.xml with com.{yourCompany}.MyUnityPlayerActivity:
+* If you don't have your own AndroidManifest.xml yet you can fetch a unity-generated one by first triggering a build and then copying it from *UnityProject\Temp\StagingArea\AndroidManifest.xml* into *Assets/Plugins/Android/AndroidManifest.xml*
 
  ```xml
  <!--
