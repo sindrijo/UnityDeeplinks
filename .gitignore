@@ -5,6 +5,7 @@ Android/com/
 
 *.csproj
 *.sln
+*.meta
 
 [Bb]uild/*
 [Ll]ibrary/*
