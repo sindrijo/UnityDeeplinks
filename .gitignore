@@ -1,2 +1,12 @@
 Android/MANIFEST.MF
 Android/com/
+
+.*/
+
+*.csproj
+*.sln
+
+[Bb]uild/*
+[Ll]ibrary/*
+[Tt]emp/*
+obj/*
