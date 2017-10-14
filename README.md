@@ -4,15 +4,21 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 * Check out the repo's *issues* section
 ## Usage
  ```cs
- public void onDeeplink(string deeplink) {
-  // Handle your event string
+ using Deeplinks;
+ 
+ private void Awake() 
+ {
+   Deeplink.Received += OnDeeplinkReceived;
+ }
+ 
+ private void OnDeeplinkReceived(string deepLink)
+ {
+     Debug.Log("Deeplink: " + deepLink);
  }
  ```
 ## Integration
 * Clone/download the repository
 * Copy the entire Assets folder into your Unity project folder
-* Attach the *UnityDeeplinks.cs* script to an empty game object named *UnityDeeplinks*
-  * **NOTE**: The game object MUST be named *UnityDeeplinks* or otherwise match the name specified in the native plugins.
 ## Android
 Subclass the default *UnityPlayerActivity* in order to add deeplink-handling code that marshals deeplinks into your Unity script:
 
@@ -37,13 +43,12 @@ Subclass the default *UnityPlayerActivity* in order to add deeplink-handling cod
  ```
 
 * Notes:
- * If you already subclassed your Unity activity, merge the code from within *MyUnityPlayerActivity* into your existing subclass
- * Optional: by default, *MyUnityPlayerActivity* calls a Unity script method `onDeeplink` on a game object called *UnityDeeplinks*. If you wish to change the name of the object or method, you should edit *Assets/Plugins/UnityDeeplinks/Android/MyUnityPlayerActivity.java*, change the values of the `gameObject` and/or `deeplinkMethod` static properties and rebuild the *UnityDeeplinks.jar* file as instructed below
+ * If you already subclassed your Unity activity, merge the code from within *SharedUnityPlayerActivity* into your existing subclass
 
 ### Why not handle deeplinks in a second activity?
-Some might suggest having a "side-activity" e.g. *MyDeeplinkActivity* to handle the deeplink and start the main Unity player activity. This way, the main Unity player activity remains clean of "outside code", right? Wrong. Consider the Unity app is currently not running. Then:
+Some might suggest having a "side-activity" e.g. *SharedUnityPlayerActivity* to handle the deeplink and start the main Unity player activity. This way, the main Unity player activity remains clean of "outside code", right? Wrong. Consider the Unity app is currently not running. Then:
 * A deeplink gets activated
-* MyDeeplinkActivity starts
+* SharedUnityPlayerActivity starts
 * Tries to access the UnityPlayer object in order to send a message to a Unity script with the deeplink information
 * At this point, since the Unity native libraries are not yet initialized, the call would fail with the error:
  ```
@@ -73,7 +78,7 @@ This creates/updates a *UnityDeeplinks.jar* file under your Unity project's Asse
 Finally, continue to build and test your Unity project as usual in order for any jar changes to take effect
 
 ## iOS
-UnityDeeplinks implements a native plugin for iOS, initialized by *Assets/Plugins/UnityDeeplinks/UnityDeeplinks.cs*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
+UnityDeeplinks implements a native plugin for iOS, initialized by *Assets/Plugins/Scripts/Internal/UnityDeeplinkReceiver.cs*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
 
 Also, like in the Android case, if the app is currently not running, we can't simply have the native low-level deeplinking code make calls to Unity scripts until the Unity libraries are initialized. Therefore, we store the deeplink in a variable, wait for the app to initialize the plugin (an indication that the Unity native libraries are ready), and then send the stored deeplink to the Unity script.
 
@@ -93,4 +98,4 @@ Also, like in the Android case, if the app is currently not running, we can't si
  ```
 
 * Open the web page on the device browser and click the deeplink
-* The Unity app should open and the onDeeplink Unity script method should be invoked, performing whatever it is you designed it to perform
+* The Unity app should open and the Deeplink.Received event should be invoked, notifying any subscribed listeners.
