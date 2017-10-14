@@ -16,6 +16,7 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
      Debug.Log("Deeplink: " + deepLink);
  }
  ```
+ * If there are no handlers subscribed to `Deeplink.Received` when deeplink is received the plugin will store them in a queue until a handler is subcribed. The first handler that is subscribed it will then immediately receive any queued deeplinks in the order they were original received, this is to ensure that no deeplink events are 'lost' because a handler wasn't registered in time. This shouldn't be an issue as long as you subscribe to `Deeplink.Received` in `Awake()` in a script that is placed in your startup scene.
 ## Integration
 * Clone/download the repository
 * Copy the entire Assets folder into your Unity project folder
