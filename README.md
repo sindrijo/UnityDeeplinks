@@ -2,13 +2,13 @@
 A set of tools for Unity to allow handling deeplink activation from within Unity scripts, for Android and iOS, including iOS Universal Links.
 ### Known Issues/Limitations
 * Check out the repo's *issues* section
-# Usage
+## Usage
  ```cs
  public void onDeeplink(string deeplink) {
   // Handle your event string
  }
  ```
-# Integration
+## Integration
 * Clone/download the repository
 * Copy the entire Assets folder into your Unity project folder
 * Attach the *UnityDeeplinks.cs* script to an empty game object named *UnityDeeplinks*
