@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -65,17 +66,11 @@ public static class DeeplinksBuildPathHelper
         }
     }
 
-
-
+    [MenuItem("Tools/Deeplinks/Refresh deeplink-build-conf.json")]
     private static void CreateHelperFile()
     {
         const string FileName = "deeplink-build-conf.json";
-        var pathsJsonPath = Path.Combine(GetContainingDirectoryPath(), "Resources\\" + FileName);
-
-        if (File.Exists(pathsJsonPath))
-        {
-            return;
-        }
+        var pathsJsonPath = PathEx.Combine(GetContainingDirectoryPath(), "Resources", FileName);
 
         if (PlayerSettings.applicationIdentifier.StartsWith("com.company", StringComparison.OrdinalIgnoreCase))
         {
@@ -95,13 +90,37 @@ public static class DeeplinksBuildPathHelper
         var p = new JarBuildConfig
         {
             UnityProjectRootPath = Directory.GetParent(Application.dataPath).FullName,
-            UnityEditorDataPath = EditorApplication.applicationContentsPath.Replace('/', '\\'),
-            AndroidSdkRoot = EditorPrefs.GetString("AndroidSdkRoot").Replace('/', '\\'),
-            JdkPath = EditorPrefs.GetString("JdkPath").Replace('/', '\\'),
-            AndroidPackageName = new string(PlayerSettings.applicationIdentifier.Reverse().SkipWhile(c => c != '.').Skip(1).Reverse().ToArray())
+            UnityEditorDataPath = EditorApplication.applicationContentsPath.AsNativePath(),
+            JdkPath = EditorPrefs.GetString("JdkPath").AsNativePath(),
+            AndroidSdkRoot = EditorPrefs.GetString("AndroidSdkRoot").AsNativePath(),
+            AndroidPackageName = PlayerSettings.applicationIdentifier.Substring(PlayerSettings.applicationIdentifier.LastIndexOf(".", StringComparison.OrdinalIgnoreCase) + 1),
+            AndroidMinSdkVersion = (int)PlayerSettings.Android.minSdkVersion,
+            AndroidTargetSdkVersion = (int)PlayerSettings.Android.targetSdkVersion
         };
 
         return p;
+    }
+
+    [MenuItem("Tools/Deeplinks/Test Android Sdk Version - Minimum")]
+    private static void TestHasAndroidMinSdk()
+    {
+        HasAndroidSdkVersion((int)PlayerSettings.Android.minSdkVersion);
+    }
+
+    [MenuItem("Tools/Deeplinks/Test Android Sdk Version - Target")]
+    private static void TestHasAndroidTargetSdk()
+    {
+        HasAndroidSdkVersion((int)PlayerSettings.Android.targetSdkVersion);
+    }
+
+    private static bool HasAndroidSdkVersion(int versionNumber)
+    {
+        var androidSdkPath = EditorPrefs.GetString("AndroidSdkRoot").AsNativePath();
+        var targetPlatformPath = PathEx.Combine(androidSdkPath, "platforms", "android-" + versionNumber);
+        var exists = Directory.Exists(targetPlatformPath);
+        Debug.Log("Android SDK ( " + versionNumber + " ) " + (exists ? "FOUND" : "NOT FOUND") + " @ " + targetPlatformPath);
+        return exists;
+
     }
 
     [Serializable]
@@ -116,5 +135,42 @@ public static class DeeplinksBuildPathHelper
         public string AndroidSdkRoot;
 
         public string JdkPath;
+
+        public int AndroidMinSdkVersion;
+
+        public int AndroidTargetSdkVersion;
+    }
+}
+
+public static class PathEx
+{
+    public static string Combine(string path, params string[] subParts)
+    {
+        return Path.Combine(path, Combine(subParts));
+    }
+
+    public static string Combine(IEnumerable<string> pathParts)
+    {
+        return pathParts.Aggregate(string.Empty, Path.Combine);
+    }
+}
+
+public static class PathStringExt
+{
+    public static string AsNativePath(this string path)
+    {
+        const char unsupportedPathSeparator
+#if UNITY_EDITOR_WIN
+        = '/';
+#else
+        = '\\';
+#endif
+
+        if (path.IndexOf(unsupportedPathSeparator) > 0)
+        {
+            path = path.Replace(unsupportedPathSeparator, Path.DirectorySeparatorChar);
+        }
+
+        return path;
     }
 }
