@@ -11,3 +11,6 @@ Android/com/
 [Ll]ibrary/*
 [Tt]emp/*
 obj/*
+
+# Ignore generated files needed for building to Android
+Assets/Plugins/UnityDeeplinks/Android/Editor/Resources/*
