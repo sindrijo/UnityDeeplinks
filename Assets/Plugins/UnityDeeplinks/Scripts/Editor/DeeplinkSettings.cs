@@ -111,11 +111,6 @@ public class DeeplinkSettingsWindow : EditorWindow
         return s_ExtraLegalChars.Any(legalChar => legalChar == c) || char.IsLetterOrDigit(c);
     }
 
-    private static void SetUrlSchemeIos()
-    {
-        UpdateIOSUrlScheme(string.Empty, DeeplinkSettings.UrlScheme);
-    }
-
     private static void UpdateIOSUrlScheme(string oldScheme, string newScheme){
 
         string desiredUrlScheme = newScheme;
