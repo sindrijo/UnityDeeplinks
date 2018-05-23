@@ -91,6 +91,11 @@ public class DeeplinkSettingsWindow : EditorWindow
 
     private static string Sanitized(string stringToSanitize)
     {
+        if(string.IsNullOrEmpty(stringToSanitize))
+        {
+            return stringToSanitize;
+        }
+
         var sanitized = stringToSanitize.Where(ValidateChar).ToArray();
         var offset = char.IsLetter(sanitized[0]) ? 0 : 1;
         return new string(sanitized, offset, sanitized.Length - offset);
