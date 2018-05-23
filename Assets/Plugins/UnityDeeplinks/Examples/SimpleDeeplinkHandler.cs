@@ -26,9 +26,10 @@ public class SimpleDeeplinkHandler : MonoBehaviour
         Deeplink.Received -= DeeplinkOnReceived;
     }
 
-    private void DeeplinkOnReceived(string arg0)
+    private void DeeplinkOnReceived(string deeplink)
     {
-        Debug.Log("Received Deeplink: " + arg0);
-        deepLinkReceived.Invoke(arg0);
+        Debug.Log("Received Deeplink: " + deeplink);
+        var unEscapedDeeplink = WWW.UnEscapeURL(deeplink);
+        deepLinkReceived.Invoke(unEscapedDeeplink);
     }
 }
