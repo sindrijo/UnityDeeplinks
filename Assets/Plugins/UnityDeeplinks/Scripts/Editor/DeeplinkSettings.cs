@@ -23,8 +23,9 @@ public sealed class DeeplinkSettings : ScriptableObject
                 return s_instance;
             }
 
-            var t = CreateInstance<DeeplinkSettings>();
-            t.hideFlags = HideFlags.HideAndDontSave;
+            s_instance = CreateInstance<DeeplinkSettings>();
+            s_instance.hideFlags = HideFlags.HideAndDontSave;
+            Save();
             return s_instance;
         }
     }
@@ -32,7 +33,7 @@ public sealed class DeeplinkSettings : ScriptableObject
 
     public static void Save()
     {
-        InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { s_instance }, FilePath, true);
+        InternalEditorUtility.SaveToSerializedFileAndForget(new UnityEngine.Object[] { s_instance }, FilePath, true);
     }
 
     public static string UrlScheme
