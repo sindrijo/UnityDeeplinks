@@ -63,18 +63,13 @@ namespace Deeplinks
         {
         }
 
-        private static void OnDeeplinkRecieved(string deeplink)
-        {
-            Internal.OnDeeplinkReceived(deeplink);
-        }
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutoInit()
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log("Deeplink.AutoInit");
 #endif
-            UnityDeeplinkReceiver.Initialize(OnDeeplinkRecieved);
+            UnityDeeplinkReceiver.Initialize(Internal.OnDeeplinkReceived);
         }
 
         [DisallowMultipleComponent]
@@ -101,6 +96,9 @@ namespace Deeplinks
 
             private void Awake()
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log("UnityDeeplinkReceiver.Awake");
+#endif
                 if (s_self != null)
                 {
                     Debug.LogError("Duplicate instances of " + GetType().Name, this);
@@ -111,11 +109,17 @@ namespace Deeplinks
             }
 
 #if UNITY_IOS
-	        [DllImport("__Internal")]
+	        [System.Runtime.InteropServices.DllImport("__Internal")]
 	        private static extern void UnityDeeplinks_init(string gameObject = null, string deeplinkMethod = null);
 
             private void Start()
             {
+                if (this != s_self)
+                {
+                    Debug.LogWarning("I am not myself...", this);
+                    return;
+                }
+
 		        if (Application.platform == RuntimePlatform.IPhonePlayer) 
                 {
 			        UnityDeeplinks_init(gameObject.name);
@@ -124,6 +128,9 @@ namespace Deeplinks
 #endif
             private void OnDestroy()
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log("UnityDeeplinkReceiver.OnDestroy");
+#endif
                 deeplinkHandler = null;
 
                 if (ReferenceEquals(s_self, this))
@@ -132,7 +139,9 @@ namespace Deeplinks
                 }
             }
 
+#if UNITY_EDITOR
             [UsedImplicitly]
+#endif
             private void OnDeeplink(string deeplink)
             {
 #if DEVELOPMENT_BUILD
