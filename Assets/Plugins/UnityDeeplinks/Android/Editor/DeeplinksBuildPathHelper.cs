@@ -93,7 +93,7 @@ public static class DeeplinksBuildPathHelper
             UnityEditorDataPath = EditorApplication.applicationContentsPath.AsNativePath(),
             JdkPath = EditorPrefs.GetString("JdkPath").AsNativePath(),
             AndroidSdkRoot = EditorPrefs.GetString("AndroidSdkRoot").AsNativePath(),
-            AndroidPackageName = PlayerSettings.applicationIdentifier.Substring(PlayerSettings.applicationIdentifier.LastIndexOf(".", StringComparison.OrdinalIgnoreCase) + 1),
+            AndroidPackageName = PlayerSettings.applicationIdentifier,
             AndroidMinSdkVersion = (int)PlayerSettings.Android.minSdkVersion,
             AndroidTargetSdkVersion = (int)PlayerSettings.Android.targetSdkVersion
         };
