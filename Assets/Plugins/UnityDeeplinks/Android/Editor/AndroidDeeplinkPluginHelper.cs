@@ -86,6 +86,9 @@ namespace Deeplinks
                                                                  && errorWaitHandle.WaitOne(timeoutMilliseconds))
                     {
                         Debug.Log(buildScriptName + " " + (process.ExitCode == 0 ? " complete!" : " failed!"));
+
+                        // Make sure Unity imports the newly created jar if it did not exist
+                        AssetDatabase.Refresh();
                     }
                     else
                     {
