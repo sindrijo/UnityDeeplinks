@@ -20,6 +20,10 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 ## Integration
 * Clone/download the repository
 * Copy the entire Assets folder into your Unity project folder
+
+## Setup
+
+
 ## Android
 Subclass the default *UnityPlayerActivity* in order to add deeplink-handling code that marshals deeplinks into your Unity script:
 
@@ -84,9 +88,6 @@ UnityDeeplinks implements a native plugin for iOS, initialized by *Assets/Plugin
 
 Also, like in the Android case, if the app is currently not running, we can't simply have the native low-level deeplinking code make calls to Unity scripts until the Unity libraries are initialized. Therefore, we store the deeplink in a variable, wait for the app to initialize the plugin (an indication that the Unity native libraries are ready), and then send the stored deeplink to the Unity script.
 
-* To support URL schemes, go to your Unity project's Build => iOS Player Settings => Other Settings => Supported URL Schemes and set:
- * Size: 1
- * Element 0: your URL scheme, e.g. myapp
 * To support Universal Links, set them up as per [their specification](https://developer.apple.com/library/content/documentation/General/Conceptual/AppSearch/UniversalLinks.html). *Note:* Universal Link settings in your XCode project are not removed during Unity rebuilds, unless you use the *Replace* option and overwrite your XCode project
 
 ## Testing
