@@ -55,7 +55,7 @@ public sealed class DeeplinkSettings : ScriptableObject
         {
             if (string.IsNullOrEmpty(s_filePath))
             {
-                s_filePath = Application.dataPath.Replace("/Assets", "") + "/ProjectSettings/" + "DeeplinkSettings.asset";
+                s_filePath = PathEx.Combine(System.IO.Directory.GetParent(Application.dataPath).FullName, "ProjectSettings", "DeeplinkSettings.asset");
             }
 
             return s_filePath;
