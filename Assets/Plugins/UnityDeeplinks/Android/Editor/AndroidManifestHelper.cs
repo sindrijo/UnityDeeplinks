@@ -65,7 +65,7 @@ namespace Deeplinks
                 var modifiedText = manifestText.Replace(deeplinkSchemeVariable, deeplinkScheme);
                 if (EditorUserBuildSettings.androidBuildSystem != AndroidBuildSystem.Gradle)
                 {
-                    modifiedText = modifiedText.Replace("${applicationId}", PlayerSettings.applicationIdentifier);
+                    modifiedText = modifiedText.Replace("${applicationId}", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android));
                 }
 
                 File.WriteAllText(s_androidManifestPath, modifiedText);
