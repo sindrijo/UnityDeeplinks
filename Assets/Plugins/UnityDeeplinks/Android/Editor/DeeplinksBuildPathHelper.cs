@@ -26,7 +26,7 @@ public static class DeeplinksBuildPathHelper
         return scriptPath.Replace(GetScriptName(), "");
     }
 
-    [MenuItem("Tools/Deeplinks/Build Android Plugin")]
+    [MenuItem("Tools/Deeplinks/Android/Build Android Plugin", priority = Constants.BaseMenuPriority + 1)]
     private static void BuildAndroidPluginFromScript()
     {
         CreateHelperFile();
@@ -66,7 +66,7 @@ public static class DeeplinksBuildPathHelper
         }
     }
 
-    [MenuItem("Tools/Deeplinks/Refresh deeplink-build-conf.json")]
+    [MenuItem("Tools/Deeplinks/Android/Refresh Build Config", priority = Constants.BaseMenuPriority + 1)]
     private static void CreateHelperFile()
     {
         const string FileName = "deeplink-build-conf.json";
@@ -101,13 +101,13 @@ public static class DeeplinksBuildPathHelper
         return p;
     }
 
-    [MenuItem("Tools/Deeplinks/Test Android Sdk Version - Minimum")]
+    [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Minimum presence", priority = Constants.BaseMenuPriority + 1)]
     private static void TestHasAndroidMinSdk()
     {
         HasAndroidSdkVersion((int)PlayerSettings.Android.minSdkVersion);
     }
 
-    [MenuItem("Tools/Deeplinks/Test Android Sdk Version - Target")]
+    [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Target presence", priority = Constants.BaseMenuPriority + 1)]
     private static void TestHasAndroidTargetSdk()
     {
         HasAndroidSdkVersion((int)PlayerSettings.Android.targetSdkVersion);

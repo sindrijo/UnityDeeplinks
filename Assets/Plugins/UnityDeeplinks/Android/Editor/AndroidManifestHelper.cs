@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
@@ -11,7 +10,7 @@ public class AndroidManifestHelper
     private static readonly string s_androidManifestPath = PathEx.Combine(Application.dataPath, "Plugins", "Android", "AndroidManifest.xml").AsNativePath();
     private static readonly string s_androidManifestBackupPath = Path.Combine(Path.Combine(Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/') + 1), "Temp"), "AndroidManifest.xml.backup").AsNativePath();
 
-    [MenuItem("Deeplinks/AndroidManifest/Backup")]
+    //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Backup")]
     public static void BackupAndroidManifest()
     {
         if (File.Exists(s_androidManifestPath))
@@ -24,7 +23,7 @@ public class AndroidManifestHelper
         }
     }
 
-    [MenuItem("Deeplinks/AndroidManifest/Restore")]
+    //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Restore")]
     public static void RestoreAndroidManifest()
     {
         if (File.Exists(s_androidManifestBackupPath))

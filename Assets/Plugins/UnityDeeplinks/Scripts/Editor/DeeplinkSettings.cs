@@ -122,7 +122,7 @@ public sealed class DeeplinkSettings : ScriptableObject
 public class DeeplinkSettingsWindow : EditorWindow
 {
     
-    [MenuItem("Deeplinks/Settings")]
+    [MenuItem("Tools/Deeplinks/Settings", priority = Constants.BaseMenuPriority)]
     private static void _Show()
     {
         var w = GetWindow<DeeplinkSettingsWindow>();
@@ -176,4 +176,9 @@ public class DeeplinkSettingsWindow : EditorWindow
             return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
         }
     }
+}
+
+public static class Constants
+{
+    public const int BaseMenuPriority = 5000;
 }
