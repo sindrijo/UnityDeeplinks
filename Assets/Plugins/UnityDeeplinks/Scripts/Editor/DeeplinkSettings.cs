@@ -92,7 +92,7 @@ public sealed class DeeplinkSettings : ScriptableObject
             var arrayElement = iosUrlSchemesSerialized.GetArrayElementAtIndex(i);
             if (arrayElement.stringValue == oldScheme)
             {
-                Debug.Log("Updating old scheme at index " + i);
+                //Debug.Log("Updating old scheme at index " + i);
                 arrayElement.stringValue = newScheme;
                 arrayElement.serializedObject.ApplyModifiedProperties();
                 return;
@@ -100,7 +100,7 @@ public sealed class DeeplinkSettings : ScriptableObject
 
             if (arrayElement.stringValue == newScheme)
             {
-                Debug.LogWarning("Desired url scheme already set at index " + i);
+                //Debug.LogWarning("Desired url scheme already set at index " + i);
                 return;
             }
         }
@@ -115,7 +115,7 @@ public sealed class DeeplinkSettings : ScriptableObject
         // Flush changes
         newArrayElement.serializedObject.ApplyModifiedProperties();
 
-        Debug.Log("iOS.UrlScheme added " + newArrayElement.stringValue);
+        //Debug.Log("iOS.UrlScheme added " + newArrayElement.stringValue);
     }
 }
 
