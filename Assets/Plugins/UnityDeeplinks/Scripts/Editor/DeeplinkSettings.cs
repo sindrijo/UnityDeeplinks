@@ -44,7 +44,9 @@ public sealed class DeeplinkSettings : ScriptableObject
             if (Instance.urlScheme != value)
             {
                 Undo.RecordObject(Instance, "Change Url-Scheme");
+                var oldScheme = Instance.urlScheme;
                 Instance.urlScheme = value;
+                UrlSchemeUpdated(oldScheme, Instance.urlScheme);
             }
         }
     }
@@ -65,69 +67,11 @@ public sealed class DeeplinkSettings : ScriptableObject
     private static string s_filePath;
 
     [SerializeField] private string urlScheme;
-}
 
-
-public class DeeplinkSettingsWindow : EditorWindow
-{
-    
-    [MenuItem("Deeplinks/Settings")]
-    private static void _Show()
+    private static void UrlSchemeUpdated(string oldScheme, string newScheme)
     {
-        var w = GetWindow<DeeplinkSettingsWindow>();
-        w.titleContent = new GUIContent("Deeplink");
-        w.ShowTab();
+        UpdateUrlSchemeIos(oldScheme, newScheme);
     }
-
-    private void OnGUI()
-    {
-        var newSchemeValue = UriSchemeValidator.ValidatedSanitized(EditorGUILayout.DelayedTextField("Url Scheme", DeeplinkSettings.UrlScheme));
-        if (!string.Equals(newSchemeValue, DeeplinkSettings.UrlScheme))
-        {
-            var old = DeeplinkSettings.UrlScheme;
-            DeeplinkSettings.UrlScheme = newSchemeValue.Trim();
-            DeeplinkSettings.Save();
-            UpdateUrlSchemeIos(old, DeeplinkSettings.UrlScheme);
-            Debug.Log("Deeplinks.UrlScheme Set: " + DeeplinkSettings.UrlScheme);
-        }
-    }
-
-    private static class UriSchemeValidator
-    {
-        /*
-            https://tools.ietf.org/html/rfc3986#section-3.1
-
-           Scheme names consist of a sequence of characters beginning with a
-           letter and followed by any combination of letters, digits, plus
-           ("+"), period ("."), or hyphen ("-").  Although schemes are case-
-           insensitive, the canonical form is lowercase and documents that
-           specify schemes must do so with lowercase letters. 
-
-         */
-
-        public static string ValidatedSanitized(string stringToSanitize)
-        {
-            if (string.IsNullOrEmpty(stringToSanitize))
-            {
-                return stringToSanitize;
-            }
-
-            return new string(stringToSanitize.SkipWhile(IsInvalidLeadingChar).Where(IsValidTailChar).ToArray());
-        }
-
-        private static readonly char[] ExtraLegalChars = { '+', '-', '.' };
-
-        private static bool IsInvalidLeadingChar(char c)
-        {
-            return !char.IsLetter(c);
-        }
-
-        private static bool IsValidTailChar(char c)
-        {
-            return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
-        }
-    }
-
 
     private static void UpdateUrlSchemeIos(string oldScheme, string newScheme)
     {
@@ -173,5 +117,63 @@ public class DeeplinkSettingsWindow : EditorWindow
 
         Debug.Log("iOS.UrlScheme added " + newArrayElement.stringValue);
     }
+}
 
+public class DeeplinkSettingsWindow : EditorWindow
+{
+    
+    [MenuItem("Deeplinks/Settings")]
+    private static void _Show()
+    {
+        var w = GetWindow<DeeplinkSettingsWindow>();
+        w.titleContent = new GUIContent("Deeplink");
+        w.ShowTab();
+    }
+
+    private void OnGUI()
+    {
+        var newSchemeValue = UriSchemeValidator.ValidatedSanitized(EditorGUILayout.DelayedTextField("Url Scheme", DeeplinkSettings.UrlScheme));
+        if (!string.Equals(newSchemeValue, DeeplinkSettings.UrlScheme))
+        {
+            DeeplinkSettings.UrlScheme = newSchemeValue.Trim();
+            DeeplinkSettings.Save();
+            Debug.Log("Deeplinks.UrlScheme Set: " + DeeplinkSettings.UrlScheme);
+        }
+    }
+
+    private static class UriSchemeValidator
+    {
+        /*
+            https://tools.ietf.org/html/rfc3986#section-3.1
+
+           Scheme names consist of a sequence of characters beginning with a
+           letter and followed by any combination of letters, digits, plus
+           ("+"), period ("."), or hyphen ("-").  Although schemes are case-
+           insensitive, the canonical form is lowercase and documents that
+           specify schemes must do so with lowercase letters. 
+
+         */
+
+        public static string ValidatedSanitized(string stringToSanitize)
+        {
+            if (string.IsNullOrEmpty(stringToSanitize))
+            {
+                return stringToSanitize;
+            }
+
+            return new string(stringToSanitize.SkipWhile(IsInvalidLeadingChar).Where(IsValidTailChar).ToArray());
+        }
+
+        private static readonly char[] ExtraLegalChars = { '+', '-', '.' };
+
+        private static bool IsInvalidLeadingChar(char c)
+        {
+            return !char.IsLetter(c);
+        }
+
+        private static bool IsValidTailChar(char c)
+        {
+            return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
+        }
+    }
 }
