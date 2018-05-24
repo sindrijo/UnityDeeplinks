@@ -52,7 +52,7 @@ namespace Deeplinks
                 string decodedDeeplink = UnityWebRequest.UnEscapeURL(deepLink);
                 if (s_deeplinkReceived == null)
                 {
-                    s_deferredDeeplinks.Enqueue(decodedDeeplink);
+                    DeferredDeeplinks.Enqueue(decodedDeeplink);
                 }
                 else
                 {
