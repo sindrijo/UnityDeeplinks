@@ -1,4 +1,4 @@
- param ([string]$jsonArg )
+ param ([string] $configFilePath)
 
 ### functions
 function CreateDirectoryIfNeeded($Path, $m) {
@@ -7,17 +7,9 @@ function CreateDirectoryIfNeeded($Path, $m) {
     }
 }
 ### /end-functions
-Write-Output "JSON-----"
 
-if($jsonArg)
-{
-    Write-Output "Using json arg: $jsonArg"
-    $buildConfig = ConvertFrom-Json $jsonArg
-}
-else {
-    Write-Output "Reading json from file"
-    $buildConfig = Get-Content $pwd'\Editor\Resources\deeplink-build-conf.json' | ConvertFrom-Json    
-}
+Write-Output "Reading json from file $configFilePath"
+$buildConfig = Get-Content $configFilePath | ConvertFrom-Json    
 
 
 $env:UNITY_LIBS = $buildConfig.UnityEditorDataPath + '\PlaybackEngines\AndroidPlayer\Variations\mono\Release\Classes\classes.jar'
