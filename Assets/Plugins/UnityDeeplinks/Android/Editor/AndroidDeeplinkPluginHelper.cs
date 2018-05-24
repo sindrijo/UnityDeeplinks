@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Deeplinks
 {
-    public static class DeeplinksBuildPathHelper
+    public static class AndroidDeeplinkPluginHelper
     {
         [InitializeOnLoadMethod]
         private static void Init()
@@ -20,7 +20,7 @@ namespace Deeplinks
 
         private static string GetScriptName()
         {
-            return typeof(DeeplinksBuildPathHelper).Name + ".cs";
+            return typeof(AndroidDeeplinkPluginHelper).Name + ".cs";
         }
 
         private static string GetContainingDirectoryPath()
@@ -79,7 +79,7 @@ namespace Deeplinks
 
             if (PlayerSettings.applicationIdentifier.StartsWith("com.company", StringComparison.OrdinalIgnoreCase))
             {
-                Debug.LogWarning(typeof(DeeplinksBuildPathHelper).Name + ": Didn't create JSON helper file for build script because PlayerSettings.applicationIdentifier is the default value");
+                Debug.LogWarning(typeof(AndroidDeeplinkPluginHelper).Name + ": Didn't create JSON helper file for build script because PlayerSettings.applicationIdentifier is the default value");
                 return;
             }
 
