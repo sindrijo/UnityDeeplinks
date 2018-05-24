@@ -81,7 +81,7 @@ public class DeeplinkSettingsWindow : EditorWindow
 
     private void OnGUI()
     {
-        var newSchemeValue = Sanitized(EditorGUILayout.DelayedTextField("Url Scheme", DeeplinkSettings.UrlScheme));
+        var newSchemeValue = UriSchemeValidator.ValidatedSanitized(EditorGUILayout.DelayedTextField("Url Scheme", DeeplinkSettings.UrlScheme));
         if (!string.Equals(newSchemeValue, DeeplinkSettings.UrlScheme))
         {
             var old = DeeplinkSettings.UrlScheme;
@@ -92,24 +92,42 @@ public class DeeplinkSettingsWindow : EditorWindow
         }
     }
 
-    private static string Sanitized(string stringToSanitize)
+    private static class UriSchemeValidator
     {
-        if(string.IsNullOrEmpty(stringToSanitize))
+        /*
+            https://tools.ietf.org/html/rfc3986#section-3.1
+
+           Scheme names consist of a sequence of characters beginning with a
+           letter and followed by any combination of letters, digits, plus
+           ("+"), period ("."), or hyphen ("-").  Although schemes are case-
+           insensitive, the canonical form is lowercase and documents that
+           specify schemes must do so with lowercase letters. 
+
+         */
+
+        public static string ValidatedSanitized(string stringToSanitize)
         {
-            return stringToSanitize;
+            if (string.IsNullOrEmpty(stringToSanitize))
+            {
+                return stringToSanitize;
+            }
+
+            return new string(stringToSanitize.SkipWhile(IsInvalidLeadingChar).Where(IsValidTailChar).ToArray());
         }
 
-        var sanitized = stringToSanitize.Where(ValidateChar).ToArray();
-        var offset = char.IsLetter(sanitized[0]) ? 0 : 1;
-        return new string(sanitized, offset, sanitized.Length - offset);
+        private static readonly char[] ExtraLegalChars = { '+', '-', '.' };
+
+        private static bool IsInvalidLeadingChar(char c)
+        {
+            return !char.IsLetter(c);
+        }
+
+        private static bool IsValidTailChar(char c)
+        {
+            return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
+        }
     }
 
-    private static readonly char[] s_ExtraLegalChars = { '-', '.', '_' };
-
-    private static bool ValidateChar(char c)
-    {
-        return s_ExtraLegalChars.Any(legalChar => legalChar == c) || char.IsLetterOrDigit(c);
-    }
 
     private static void UpdateIOSUrlScheme(string oldScheme, string newScheme){
 
