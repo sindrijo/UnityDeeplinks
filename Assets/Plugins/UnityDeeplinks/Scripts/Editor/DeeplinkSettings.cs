@@ -87,7 +87,7 @@ public class DeeplinkSettingsWindow : EditorWindow
             var old = DeeplinkSettings.UrlScheme;
             DeeplinkSettings.UrlScheme = newSchemeValue.Trim();
             DeeplinkSettings.Save();
-            UpdateIOSUrlScheme(old, DeeplinkSettings.UrlScheme);
+            UpdateUrlSchemeIos(old, DeeplinkSettings.UrlScheme);
             Debug.Log("Deeplinks.UrlScheme Set: " + DeeplinkSettings.UrlScheme);
         }
     }
@@ -129,46 +129,49 @@ public class DeeplinkSettingsWindow : EditorWindow
     }
 
 
-    private static void UpdateIOSUrlScheme(string oldScheme, string newScheme){
-
-        string desiredUrlScheme = newScheme;
-
-        var getPlayerSettingsObject = typeof(PlayerSettings).GetMethod("GetSerializedObject", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-        var settingsObject = getPlayerSettingsObject.Invoke(null, null) as SerializedObject;
-
-        SerializedProperty iosUrlSchemes = settingsObject.FindProperty("iOSURLSchemes");
-
-        int targetArrayIndex = 0;
-        bool shouldInsertNewElement = true;
-
-        for (int i = 0; i < iosUrlSchemes.arraySize; i++)
+    private static void UpdateUrlSchemeIos(string oldScheme, string newScheme)
+    {
+        if (string.Equals(oldScheme, newScheme))
         {
-            var arrayElement = iosUrlSchemes.GetArrayElementAtIndex(i);
-            if (arrayElement.stringValue == desiredUrlScheme)
-            {
-                Debug.Log("Desired url scheme already set at index " + i);
-                return;
-            }
+            return;
+        }
 
+        var findPropertyMethod = typeof(PlayerSettings).GetMethod("FindProperty", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        Debug.Assert(findPropertyMethod != null, "findPropertyMethod != null");
+        SerializedProperty iosUrlSchemesSerialized = (SerializedProperty)findPropertyMethod.Invoke(null, new object[] { "iOSURLSchemes" });
+
+        // Make sure we are updating the current object
+        iosUrlSchemesSerialized.serializedObject.Update();
+
+        for (int i = 0; i < iosUrlSchemesSerialized.arraySize; i++)
+        {
+            var arrayElement = iosUrlSchemesSerialized.GetArrayElementAtIndex(i);
             if (arrayElement.stringValue == oldScheme)
             {
                 Debug.Log("Updating old scheme at index " + i);
-                targetArrayIndex = i;
-                shouldInsertNewElement = false;
-                break;
+                arrayElement.stringValue = newScheme;
+                arrayElement.serializedObject.ApplyModifiedProperties();
+                return;
+            }
+
+            if (arrayElement.stringValue == newScheme)
+            {
+                Debug.LogWarning("Desired url scheme already set at index " + i);
+                return;
             }
         }
 
-        if (shouldInsertNewElement)
-        {
-            targetArrayIndex = iosUrlSchemes.arraySize;
-            iosUrlSchemes.InsertArrayElementAtIndex(iosUrlSchemes.arraySize);
-        }
+        // Add new entry because entry with the old scheme was not found
+        var newIndex = iosUrlSchemesSerialized.arraySize;
+        iosUrlSchemesSerialized.InsertArrayElementAtIndex(newIndex);
 
-        SerializedProperty targetUrlSchemeArrayElement = iosUrlSchemes.GetArrayElementAtIndex(targetArrayIndex);
-        targetUrlSchemeArrayElement.stringValue = desiredUrlScheme;
-        targetUrlSchemeArrayElement.serializedObject.ApplyModifiedProperties();
-        Debug.Log("UrlScheme set to " + targetUrlSchemeArrayElement.stringValue);
+        var newArrayElement = iosUrlSchemesSerialized.GetArrayElementAtIndex(newIndex);
+        newArrayElement.stringValue = newScheme;
+
+        // Flush changes
+        newArrayElement.serializedObject.ApplyModifiedProperties();
+
+        Debug.Log("iOS.UrlScheme added " + newArrayElement.stringValue);
     }
 
 }
