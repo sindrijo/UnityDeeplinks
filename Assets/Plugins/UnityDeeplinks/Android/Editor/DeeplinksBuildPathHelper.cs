@@ -79,14 +79,12 @@ namespace Deeplinks
 
             if (PlayerSettings.applicationIdentifier.StartsWith("com.company", StringComparison.OrdinalIgnoreCase))
             {
-                Debug.LogWarning(
-                    "Didn't create JSON helper file for build script because PlayerSettings.applicationIdentifier is the default value");
+                Debug.LogWarning(typeof(DeeplinksBuildPathHelper).Name + ": Didn't create JSON helper file for build script because PlayerSettings.applicationIdentifier is the default value");
                 return;
             }
 
             var json = EditorJsonUtility.ToJson(ConstructJarConfig(), true);
             Debug.Log(FileName + " : " + json);
-
             Debug.LogWarning("Writing to : " + pathsJsonPath);
             File.WriteAllText(pathsJsonPath, json);
         }
@@ -107,15 +105,13 @@ namespace Deeplinks
             return p;
         }
 
-        [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Minimum presence", priority =
-            Constants.BaseMenuPriority + 1)]
+        [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Minimum presence", priority = Constants.BaseMenuPriority + 1)]
         private static void TestHasAndroidMinSdk()
         {
             HasAndroidSdkVersion((int) PlayerSettings.Android.minSdkVersion);
         }
 
-        [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Target presence", priority =
-            Constants.BaseMenuPriority + 1)]
+        [MenuItem("Tools/Deeplinks/Android/Test/Check Android Sdk Version - Target presence", priority = Constants.BaseMenuPriority + 1)]
         private static void TestHasAndroidTargetSdk()
         {
             HasAndroidSdkVersion((int) PlayerSettings.Android.targetSdkVersion);
