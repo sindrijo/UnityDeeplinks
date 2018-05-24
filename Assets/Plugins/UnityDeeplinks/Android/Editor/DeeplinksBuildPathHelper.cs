@@ -144,24 +144,26 @@ public static class DeeplinksBuildPathHelper
 
 public static class PathEx
 {
-    public static string Combine(string path, params string[] subParts)
+    public static string Combine(string first, string second)
     {
-        return Path.Combine(path, Combine(subParts));
+        return Path.Combine(first, second);
+    }
+
+    public static string Combine(string first, string second, params string[] subsequentParts)
+    {
+        return Path.Combine(Path.Combine(first, second), Combine(subsequentParts));
     }
 
     public static string Combine(IEnumerable<string> pathParts)
     {
         return pathParts.Aggregate(string.Empty, Path.Combine);
     }
-}
 
-public static class PathStringExt
-{
     public static string AsNativePath(this string path)
     {
         const char unsupportedPathSeparator
 #if UNITY_EDITOR_WIN
-        = '/';
+            = '/';
 #else
         = '\\';
 #endif
