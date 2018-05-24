@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
 namespace Deeplinks
@@ -48,13 +49,14 @@ namespace Deeplinks
 
             public static void OnDeeplinkReceived(string deepLink)
             {
+                string decodedDeeplink = UnityWebRequest.UnEscapeURL(deepLink);
                 if (s_deeplinkReceived == null)
                 {
-                    s_deferredDeeplinks.Enqueue(deepLink);
+                    s_deferredDeeplinks.Enqueue(decodedDeeplink);
                 }
                 else
                 {
-                    s_deeplinkReceived.Invoke(deepLink);
+                    s_deeplinkReceived.Invoke(decodedDeeplink);
                 }
             }
         }
