@@ -98,7 +98,9 @@ namespace Deeplinks
             }
         }
 
+#if UNITY_ANDROID
         [InitializeOnLoadMethod]
+#endif
         [MenuItem("Tools/Deeplinks/Android/Refresh Build Config", priority = Constants.BaseMenuPriority + 1)]
         private static void RefreshBuildConfig()
         {
