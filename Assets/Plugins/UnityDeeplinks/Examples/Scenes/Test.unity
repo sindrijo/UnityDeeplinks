@@ -704,7 +704,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: SimpleDeeplinkHandler+UnityStringEvent, Assembly-CSharp-firstpass,
+    m_TypeName: Deeplinks.Examples.SimpleDeeplinkHandler+UnityStringEvent, Assembly-CSharp-firstpass,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &2004677872
 MonoBehaviour:
