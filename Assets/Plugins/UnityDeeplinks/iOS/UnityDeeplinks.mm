@@ -12,8 +12,6 @@
 #import "AppDelegateListener.h"
 #import "UnityAppController.h"
 
-
-
 extern "C" {
     // There is no public unity header, need to declare this manually:
     // http://answers.unity3d.com/questions/58322/calling-unitysendmessage-requires-which-library-on.html
@@ -25,14 +23,10 @@ extern "C" {
     
 }
 
-
-`
 @interface UnityDeeplinksNotificationObserver : NSObject <AppDelegateListener>
 - (void)onNotification:(NSNotification*)notification;
 - (void)onOpenURL:(NSNotification *)notification;
 @end
-
-
 
 @interface UnityDeeplinksAppController : UnityAppController
 {
@@ -50,8 +44,6 @@ extern "C" {
 @property NSString* deeplinkMethodName;
 
 @end
-
-
 
 @implementation UnityDeeplinksNotificationObserver
 
@@ -138,7 +130,8 @@ extern "C" {
     static NSString* deeplinkMethodName = @"OnDeeplink";
     
     
-    void UnityDeeplinks_init(const char* gameObject, const char* deeplinkMethod) {
+    void UnityDeeplinks_init(const char* gameObject, const char* deeplinkMethod) 
+    {
         UnityDeeplinksAppController* ac = (UnityDeeplinksAppController*)GetAppController();
         ac.gameObjectName = gameObjectName;
         if (gameObject != nil) {
@@ -165,8 +158,4 @@ extern "C" {
         }
         
     }
-    
-    
-    
-    
 }
