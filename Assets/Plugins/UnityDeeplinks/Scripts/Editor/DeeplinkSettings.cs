@@ -150,41 +150,41 @@ namespace Deeplinks
                 Debug.Log("Deeplinks.UrlScheme Set: " + DeeplinkSettings.UrlScheme);
             }
         }
+    }
 
-        private static class UriSchemeValidator
+    public static class UriSchemeValidator
+    {
+        /*
+            https://tools.ietf.org/html/rfc3986#section-3.1
+
+           Scheme names consist of a sequence of characters beginning with a
+           letter and followed by any combination of letters, digits, plus
+           ("+"), period ("."), or hyphen ("-").  Although schemes are case-
+           insensitive, the canonical form is lowercase and documents that
+           specify schemes must do so with lowercase letters. 
+
+         */
+
+        public static string ValidatedSanitized(string stringToSanitize)
         {
-            /*
-                https://tools.ietf.org/html/rfc3986#section-3.1
-
-               Scheme names consist of a sequence of characters beginning with a
-               letter and followed by any combination of letters, digits, plus
-               ("+"), period ("."), or hyphen ("-").  Although schemes are case-
-               insensitive, the canonical form is lowercase and documents that
-               specify schemes must do so with lowercase letters. 
-
-             */
-
-            public static string ValidatedSanitized(string stringToSanitize)
+            if (string.IsNullOrEmpty(stringToSanitize))
             {
-                if (string.IsNullOrEmpty(stringToSanitize))
-                {
-                    return stringToSanitize;
-                }
-
-                return new string(stringToSanitize.SkipWhile(IsInvalidLeadingChar).Where(IsValidTailChar).ToArray());
+                return stringToSanitize;
             }
 
-            private static readonly char[] ExtraLegalChars = {'+', '-', '.'};
+            return new string(stringToSanitize.ToLowerInvariant().SkipWhile(IsInvalidLeadingChar).Where(IsValidTailChar).ToArray());
+        }
 
-            private static bool IsInvalidLeadingChar(char c)
-            {
-                return !char.IsLetter(c);
-            }
+        private static readonly char[] ExtraLegalChars = { '+', '-', '.' };
 
-            private static bool IsValidTailChar(char c)
-            {
-                return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
-            }
+        private static bool IsInvalidLeadingChar(char c)
+        {
+            return !char.IsLetter(c);
+        }
+
+        private static bool IsValidTailChar(char c)
+        {
+            return char.IsLetterOrDigit(c) || ExtraLegalChars.Any(legalChar => legalChar == c);
         }
     }
 
