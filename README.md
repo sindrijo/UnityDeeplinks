@@ -23,11 +23,11 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 * Export the Assets folder as a .unitypackage
 * Import the exported .unitypackage into your Unity project
 
-# Setup
-## Android
-### Prerequisites
-* Go to '(Unity/Edit)' -> 'Preferences' -> 'External Tools' menu
-* Scroll down to 'Android' and ensure the SDK and JDK folder paths are set correctly
+# Setup - Android
+## Prerequisites
+* Make sure the SDK and JDK folder paths are set correctly
+  * Go to '(Unity/Edit)' -> 'Preferences' -> 'External Tools' menu
+  * Scroll down to 'Android' and set the SDK and JDK folder paths
 
 **No other setup is required, unless the main Android activity has been overridden in your project by you or another plugin, if so then..**
 1. Merge the code from _SharedUnityPlayerActivity_ into your own activity or
