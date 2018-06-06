@@ -1,6 +1,7 @@
 # UnityDeeplinks
 A set of tools for Unity to allow handling deeplink activation from within Unity scripts, for Android and iOS, including iOS Universal Links.
 ### Known Issues/Limitations
+* No support for handling multiple url-schemes (yet), a large majority of apps only need to support one anyways.
 * Check out the repo's *issues* section
 ## Usage
  ```cs
@@ -16,42 +17,53 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
     Debug.Log("Deeplink: " + deepLink);
  }
  ```
- * If there are no handlers subscribed to `Deeplink.Received` when deeplink is received the plugin will store them in a queue until a handler is subcribed. The first handler that is subscribed it will then immediately receive any queued deeplinks in the order they were originally received, this is to ensure that no deeplink events are 'lost' because a handler wasn't registered in time. This shouldn't be an issue as long as you subscribe to `Deeplink.Received` in `Awake()` in a script that is placed in your startup scene.
+ * Note: If there are no handlers subscribed to `Deeplink.Received` when a deeplink is received they will be stored until a handler is subcribed. The first handler that is subscribed will receive any queued deeplinks in the order they were originally received by the application. No deeplink events are 'lost' because a handler wasn't registered in time. It is recommended to only subcribe one handler which then routes the events to other parts of your application. 
 ## Integration
 * Clone/download the repository
-* Copy the entire Assets folder into your Unity project folder
+* Export the Assets folder as a .unitypackage
+* Import the exported .unitypackage into your Unity project
 
-## Setup
-
-
+# Setup
 ## Android
-Subclass the default *UnityPlayerActivity* in order to add deeplink-handling code that marshals deeplinks into your Unity script:
+### Prerequisites
+* Go to your Unity => Preferences => External tools menu and find your Android SDK and JDK home folders
+* Ensure ANDROID_SDK_ROOT points to your Android SDK root folder
+* Ensure JDK_HOME points to your JDK root folder
 
-* Replace the default UnityPlayerActivity in your Assets/Plugins/Android/AndroidManifest.xml with com.{yourCompany}.MyUnityPlayerActivity:
-* If you don't have your own AndroidManifest.xml yet you can fetch a unity-generated one by first triggering a build and then copying it from *UnityProject\Temp\StagingArea\AndroidManifest.xml* into *Assets/Plugins/Android/AndroidManifest.xml*
+**No other special setup is required unless you have a custom android activity (have subclassed *UnityPlayerActivity*) or are using a plugin that does so.**
+
+#### AndroidManifest.xml
+* A basic AndroidManifest.xml is included with the plugin, it has placeholder variables that are replaced as a pre-build step when building in Unity, you can use it as a guide of which changes you need to make to your existing AndroidManifest.xml.
+
+* Make sure the package is using a placeholder variable instead of a hard-coded package name, this placeholder will be replaced with whatever the bundle-id is set to in Unity's *PlayerSettings* eg. *com.YourCompany.YourProduct*
+```xml
+<manifest 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  package="${applicationId}" ...
+```
+
+* Same with your main activity, replace "[YOUR_ACTIVITY_CLASS_NAME]" with the name of your custom activity name.
+```xml
+<activity android:name="${applicationId}.[YOUR_ACTIVITY_CLASS_NAME]" ...
+```
+
+* Then add the following inside the same (main) *activity* tag, inside the `<intent-filter>` tag
 
  ```xml
- <!--
- <activity android:name="com.unity3d.player.UnityPlayerActivity" ...
- -->
- <activity android:name="com.{yourCompany}.SharedUnityPlayerActivity" ...
+   <!-- Deeplinks.Plugin[start] -->
+   <action android:name="android.intent.action.VIEW" />
+   <category android:name="android.intent.category.DEFAULT" />
+   <category android:name="android.intent.category.BROWSABLE" />
+   <data android:scheme="${deeplinkScheme}" />
+   <!-- Deeplinks.Plugin[end] -->
  ```
+ * If you don't have your own AndroidManifest.xml, yet you can fetch a unity-generated one by first triggering a build and then copying it from *UnityProject\Temp\StagingArea\AndroidManifest.xml* into *Assets/Plugins/Android/AndroidManifest.xml*
+ 
+#### Android Activity
+Merge the code from *SharedUnityPlayerActivity* into your own activity or
+subclass *SharedUnityPlayerActivity* instead and make sure to call *super.onCreate(Bundle savedInstanceState)* and/or *super.onNewIntent(intent)* if you have overridden the *onCreate* or *onNewIntent* methods.
 
-* Add the following inside the same *activity* tag, assuming your deeplink URL scheme is myapp://
-
- ```xml
- <intent-filter>
-     <action android:name="android.intent.action.VIEW" />
-     <category android:name="android.intent.category.DEFAULT" />
-     <category android:name="android.intent.category.BROWSABLE" />
-     <data android:scheme="myapp" />
- </intent-filter>
- ```
-
-* Notes:
- * If you already subclassed your Unity activity, merge the code from within *SharedUnityPlayerActivity* into your existing subclass
-
-### Why not handle deeplinks in a second activity?
+#### Why not handle deeplinks in a second activity?
 Some might suggest having a "side-activity" e.g. *SharedUnityPlayerActivity* to handle the deeplink and start the main Unity player activity. This way, the main Unity player activity remains clean of "outside code", right? Wrong. Consider the Unity app is currently not running. Then:
 * A deeplink gets activated
 * SharedUnityPlayerActivity starts
@@ -62,29 +74,8 @@ Some might suggest having a "side-activity" e.g. *SharedUnityPlayerActivity* to 
  ```
 Bottom line: you need the Unity player activity initialized in order to call Unity functions from native code. The only way to handle the scenario above would be to have the Unity player activity itself handle the deeplink. Unity will make sure it's initialized prior to the call.
 
-### Building the UnityDeeplinks.jar file
-Only perform this step if you made changes to any .java file under *Assets/UnityDeeplinks/Android/* or would like to rebuild it using an updated version of Unity classes, Android SDK, JDK and so on.
-
-#### Prerequisites
-* Go to your Unity => Preferences => External tools menu and find your Android SDK and JDK home folders
-* Edit *UnityDeeplinks/Android/bulid_jar.sh*
-* Ensure ANDROID_SDK_ROOT points to your Android SDK root folder
-* Ensure JDK_HOME points to your JDK root folder
-* Ensure UNITY_LIBS points to the Unity classes.jar file in your development environment
-
-#### Build instructions
-Run the build script:
-```
-cd MY_UNITY_PROJECT_ROOT/Assets/Plugins/UnityDeeplinks/Android
-./build_jar.sh
-```
-
-This creates/updates a *UnityDeeplinks.jar* file under your Unity project's Assets/Plugins/UnityDeeplinks folder.
-
-Finally, continue to build and test your Unity project as usual in order for any jar changes to take effect
-
 ## iOS
-UnityDeeplinks implements a native plugin for iOS, initialized by *Assets/Plugins/Scripts/Internal/UnityDeeplinkReceiver.cs*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
+UnityDeeplinks implements a native plugin for iOS, initialized by a private class *UnityDeeplinkReceiver*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
 
 Also, like in the Android case, if the app is currently not running, we can't simply have the native low-level deeplinking code make calls to Unity scripts until the Unity libraries are initialized. Therefore, we store the deeplink in a variable, wait for the app to initialize the plugin (an indication that the Unity native libraries are ready), and then send the stored deeplink to the Unity script.
 
