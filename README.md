@@ -3,7 +3,7 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 ### Known Issues/Limitations
 * No support for handling multiple url-schemes (yet), a large majority of apps only need to support one anyways.
 * Check out the repo's *issues* section
-## Usage
+## Usage Example
  ```cs
  using Deeplinks;
  
@@ -17,7 +17,7 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
     Debug.Log("Deeplink: " + deepLink);
  }
  ```
- * Note: If there are no handlers subscribed to `Deeplink.Received` when a deeplink is received they will be stored until a handler is subcribed. The first handler that is subscribed will receive any queued deeplinks in the order they were originally received by the application. No deeplink events are 'lost' because a handler wasn't registered in time. It is recommended to only subcribe one handler which then routes the events to other parts of your application. 
+ * **Note:** If there are no handlers subscribed to `Deeplink.Received` when a deeplink is received they will be stored until a handler is subcribed. The first handler that is subscribed will receive any queued deeplinks in the order they were originally received by the application. No deeplink events are 'lost' because a handler wasn't registered in time. It is recommended to only subcribe one handler which then routes the events to other parts of your application. 
 ## Integration
 * Clone/download the repository
 * Export the Assets folder as a .unitypackage
@@ -26,9 +26,8 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 # Setup
 ## Android
 ### Prerequisites
-* Go to your Unity => Preferences => External tools menu and find your Android SDK and JDK home folders
-* Ensure ANDROID_SDK_ROOT points to your Android SDK root folder
-* Ensure JDK_HOME points to your JDK root folder
+* Go to '(Unity/Edit)' -> 'Preferences' -> 'External Tools' menu
+* Scroll down to 'Android' and ensure the SDK and JDK folder paths are set correctly
 
 **No other special setup is required unless you have a custom android activity (have subclassed *UnityPlayerActivity*) or are using a plugin that does so.**
 
