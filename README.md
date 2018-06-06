@@ -23,8 +23,8 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 * Export the Assets folder as a .unitypackage
 * Import the exported .unitypackage into your Unity project
 
-# Setup - Android
-## Prerequisites
+## Setup - Android
+### Prerequisites
 * Make sure the SDK and JDK folder paths are set correctly
   * Go to '(Unity/Edit)' -> 'Preferences' -> 'External Tools' menu
   * Scroll down to 'Android' and set the SDK and JDK folder paths
@@ -64,8 +64,13 @@ Some might suggest having a "side-activity" e.g. *SharedUnityPlayerActivity* to 
  ```
 Bottom line: you need the Unity player activity initialized in order to call Unity functions from native code. The only way to handle the scenario above would be to have the Unity player activity itself handle the deeplink. Unity will make sure it's initialized prior to the call.
 
-## iOS
-UnityDeeplinks implements a native plugin for iOS, initialized by a private class *UnityDeeplinkReceiver*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
+## Setup - iOS
+_No setup reqired. (Unless *UnityAppController* is subclassed by something else in your project, instructions below.)
+
+Merge the code from _UnityDeeplinks.mm_ into your own app-controller, taking care to either delete _UnityDeeplinks.mm_ from your project or comment out ```IMPL_APP_CONTROLLER_SUBCLASS(UnityDeeplinksAppController)``` in the _UnityDeeplinks.mm_ file.
+
+### iOS - Note on implementation
+UnityDeeplinks implements a native plugin for iOS, initialized by a private nested class *Deeplink.UnityDeeplinkReceiver*. The plugin listens for URL/Univeral Link activations and relayes them to the Unity script for processing. It, too, uses a similar approach as the one used for Android: the main Unity app controller gets subclassed.
 
 Also, like in the Android case, if the app is currently not running, we can't simply have the native low-level deeplinking code make calls to Unity scripts until the Unity libraries are initialized. Therefore, we store the deeplink in a variable, wait for the app to initialize the plugin (an indication that the Unity native libraries are ready), and then send the stored deeplink to the Unity script.
 
