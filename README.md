@@ -30,7 +30,7 @@ A set of tools for Unity to allow handling deeplink activation from within Unity
 
 **No further setup is required unless the main Android activity has been overridden in your project by you or another plugin, if so then you can use this [integration guide](../master/IntegrationGuides.md)**
 
-#### Why not handle deeplinks in a second activity?
+### Android - Note on implementation
 Some might suggest having a "side-activity" e.g. *SharedUnityPlayerActivity* to handle the deeplink and start the main Unity player activity. This way, the main Unity player activity remains clean of "outside code", right? Wrong. Consider the Unity app is currently not running. Then:
 * A deeplink gets activated
 * SharedUnityPlayerActivity starts
