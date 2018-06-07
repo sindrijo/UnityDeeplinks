@@ -8,7 +8,7 @@ using UnityEditor.Build;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Deeplinks
+namespace Deeplinks.Build
 {
     internal static partial class DeeplinkPluginBuildHelpers
     {

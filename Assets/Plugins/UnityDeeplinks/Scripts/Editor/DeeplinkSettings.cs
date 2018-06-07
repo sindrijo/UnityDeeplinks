@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace Deeplinks
+namespace Deeplinks.Build
 {
     public sealed class DeeplinkSettings : ScriptableObject
     {

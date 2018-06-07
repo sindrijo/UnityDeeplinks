@@ -5,7 +5,7 @@ using UnityEditor.Build;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace Deeplinks
+namespace Deeplinks.Build
 {
     internal static partial class DeeplinkPluginBuildHelpers
     {
