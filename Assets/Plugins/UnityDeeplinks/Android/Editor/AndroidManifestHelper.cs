@@ -10,16 +10,16 @@ namespace Deeplinks
     public class AndroidManifestHelper
         : IPreprocessBuild, IPostprocessBuild
     {
-        private static readonly string s_androidManifestPath = PathUtil.Combine(Application.dataPath, "Plugins", "Android", "AndroidManifest.xml").AsNativePath();
 
-        private static readonly string s_androidManifestBackupPath = Path.Combine(Path.Combine(Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/') + 1), "Temp"), "AndroidManifest.xml.backup").AsNativePath();
+        private static readonly string s_androidManifestFullPath = PathUtil.Combine(Application.dataPath, "Plugins", "Android", "AndroidManifest.xml").AsNativePath();
+        private static readonly string s_androidManifestBackupFullPath = PathUtil.Combine(PathUtil.ProjectRootPath, "Temp", "AndroidManifest.xml.backup").AsNativePath();
 
         //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Backup")]
         private static void BackupAndroidManifest()
         {
-            if (File.Exists(s_androidManifestPath))
+            if (File.Exists(s_androidManifestFullPath))
             {
-                File.Copy(s_androidManifestPath, s_androidManifestBackupPath, true);
+                File.Copy(s_androidManifestFullPath, s_androidManifestBackupFullPath, true);
             }
             else
             {
@@ -30,9 +30,9 @@ namespace Deeplinks
         //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Restore")]
         private static void RestoreAndroidManifest()
         {
-            if (File.Exists(s_androidManifestBackupPath))
+            if (File.Exists(s_androidManifestFullPath))
             {
-                File.Copy(s_androidManifestBackupPath, s_androidManifestPath, true);
+                File.Copy(s_androidManifestBackupFullPath, s_androidManifestFullPath, true);
             }
             else
             {
@@ -58,7 +58,7 @@ namespace Deeplinks
             string deeplinkScheme = DeeplinkSettings.UrlScheme;
             Debug.Log("Applying deeplink scheme to AndroidManifest: " + deeplinkScheme);
 
-            var manifestText = File.ReadAllText(s_androidManifestPath);
+            var manifestText = File.ReadAllText(s_androidManifestFullPath);
             if (manifestText.Contains(deeplinkSchemeVariable))
             {
                 BackupAndroidManifest();
@@ -68,7 +68,14 @@ namespace Deeplinks
                     modifiedText = modifiedText.Replace("${applicationId}", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android));
                 }
 
-                File.WriteAllText(s_androidManifestPath, modifiedText);
+                if (PathUtil.EnsureFileIsWriteable(s_androidManifestFullPath))
+                {
+                    File.WriteAllText(s_androidManifestFullPath, modifiedText);
+                }
+                else
+                {
+                    Debug.LogError("Cannot write to file : " + s_androidManifestFullPath);
+                }
             }
             else
             {
