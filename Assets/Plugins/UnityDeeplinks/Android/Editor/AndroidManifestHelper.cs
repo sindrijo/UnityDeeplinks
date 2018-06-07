@@ -15,7 +15,7 @@ namespace Deeplinks
         private static readonly string s_androidManifestBackupPath = Path.Combine(Path.Combine(Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/') + 1), "Temp"), "AndroidManifest.xml.backup").AsNativePath();
 
         //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Backup")]
-        public static void BackupAndroidManifest()
+        private static void BackupAndroidManifest()
         {
             if (File.Exists(s_androidManifestPath))
             {
@@ -28,7 +28,7 @@ namespace Deeplinks
         }
 
         //[MenuItem("Tools/Deeplinks/Android/AndroidManifest/Restore")]
-        public static void RestoreAndroidManifest()
+        private static void RestoreAndroidManifest()
         {
             if (File.Exists(s_androidManifestBackupPath))
             {
