@@ -267,6 +267,11 @@ namespace Deeplinks
 
         public static string AsNativePath(this string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                return path;
+            }
+
             const char unsupportedPathSeparator
     #if UNITY_EDITOR_WIN
                 = '/';
