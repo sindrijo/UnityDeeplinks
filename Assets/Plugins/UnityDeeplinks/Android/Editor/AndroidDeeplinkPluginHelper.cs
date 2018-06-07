@@ -118,12 +118,11 @@ namespace Deeplinks
 
         private static void CreateBuildConfigFile()
         {
-            const string configFileName = "deeplink-android-build-config.json";
-            var configPath = GetConfigFilePath();
+            var configFilePath = GetConfigFilePath();
             var json = EditorJsonUtility.ToJson(ConstructJarConfig(), true);
-            Debug.Log(configFileName + " : " + json);
-            Debug.Log("Saving config @ " + configPath);
-            File.WriteAllText(configPath, json);
+            Debug.Log("Saving config @ " + configFilePath);
+            Debug.Log("config values :\n" + json);
+            File.WriteAllText(configFilePath, json);
         }
 
         private static string GetConfigFilePath()
