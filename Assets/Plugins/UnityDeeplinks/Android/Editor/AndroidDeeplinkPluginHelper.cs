@@ -287,15 +287,15 @@ namespace Deeplinks
             return path;
         }
 
-        public static string ProjectRootPath
-        {
-            get { return Directory.GetParent(Application.dataPath).FullName; }
-        }
-
         public static string GetScriptPath(Type scriptType)
         {
             var path = Directory.GetFiles(Application.dataPath, scriptType.Name + ".cs", SearchOption.AllDirectories).FirstOrDefault();
             return path;
+        }
+
+        public static string ProjectRootPath
+        {
+            get { return Directory.GetParent(Application.dataPath).FullName; }
         }
     }
 }
