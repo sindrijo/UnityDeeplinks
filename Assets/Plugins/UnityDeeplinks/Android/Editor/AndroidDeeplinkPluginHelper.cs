@@ -119,7 +119,7 @@ namespace Deeplinks
             var configPath = GetConfigFilePath();
             var json = EditorJsonUtility.ToJson(ConstructJarConfig(), true);
             Debug.Log(configFileName + " : " + json);
-            Debug.LogWarning("Saving config @ " + configPath);
+            Debug.Log("Saving config @ " + configPath);
             File.WriteAllText(configPath, json);
         }
 
