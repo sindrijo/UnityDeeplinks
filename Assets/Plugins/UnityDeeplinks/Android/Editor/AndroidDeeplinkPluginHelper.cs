@@ -30,6 +30,12 @@ namespace Deeplinks
                 return;
             }
 
+            var jarDestPath = PathUtil.Combine(parentPath.FullName, "UnityDeeplinks.jar");
+            if (File.Exists(jarDestPath))
+            {
+                PathUtil.EnsureFileIsWriteable(jarDestPath);
+            }
+
             const string buildScriptName = "build_jar.ps1";
             var buildScriptPath = PathUtil.Combine(parentPath.FullName, buildScriptName).AsNativePath();
             var configFilePath = GetConfigFilePath();
