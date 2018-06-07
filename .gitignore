@@ -14,5 +14,5 @@ obj/*
 UnityPackageManager/*
 
 # Ignore generated files needed for building to Android
-Assets/Plugins/UnityDeeplinks/Android/Editor/Resources/*
+/tmp
 ProjectSettings/ProjectSettings.asset

@@ -125,8 +125,26 @@ namespace Deeplinks
 
         private static string GetConfigFilePath()
         {
-            const string configFileName = "deeplink-android-build-config.json";
-            return PathEx.Combine(GetContainingDirectoryPath(), "Resources", configFileName);
+            // Using folder name 'tmp' which is commonly ignored by source control
+            const string tempFolderName = "tmp";
+
+            const string configFileName = "deeplink-android-build-config" + ".json";
+
+            var tempDirectory = new DirectoryInfo(PathEx.Combine(PathEx.ProjectRootPath, tempFolderName).AsNativePath());
+            if (!tempDirectory.Exists)
+            {
+                tempDirectory.Create();
+                tempDirectory.Refresh();
+            }
+
+            // (re)add hidden attribute if is not present
+            if ((tempDirectory.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
+            {
+                // Hidden folders are ignored by unity
+                tempDirectory.Attributes |= FileAttributes.Hidden;
+            }
+
+            return PathEx.Combine(tempDirectory.FullName, configFileName);
         }
 
         private static bool CheckRequesities()
@@ -265,6 +283,11 @@ namespace Deeplinks
             }
 
             return path;
+        }
+
+        public static string ProjectRootPath
+        {
+            get { return Directory.GetParent(Application.dataPath).FullName; }
         }
 
         public static string GetScriptPath(Type scriptType)
