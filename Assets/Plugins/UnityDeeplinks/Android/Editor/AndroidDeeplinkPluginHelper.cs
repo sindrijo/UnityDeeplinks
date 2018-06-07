@@ -294,5 +294,33 @@ namespace Deeplinks
         {
             get { return Directory.GetParent(Application.dataPath).FullName; }
         }
+
+        public static bool EnsureFileIsWriteable(string fileNamePath)
+        {
+            if (Directory.Exists(fileNamePath))
+            {
+                Debug.LogError("Path is a directory path: " + fileNamePath);
+                return false;
+            }
+
+            var attributes = File.GetAttributes(fileNamePath);
+            if ((attributes & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
+            {
+                return true;
+            }
+
+            Debug.LogWarning("Making file non-readonly: " + fileNamePath);
+
+            try
+            {
+                File.SetAttributes(fileNamePath, attributes & ~FileAttributes.ReadOnly);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return false;
+            }
+        }
     }
 }
