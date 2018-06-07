@@ -10,259 +10,262 @@ using Debug = UnityEngine.Debug;
 
 namespace Deeplinks
 {
-    public static class AndroidDeeplinkPluginHelper
+    internal static partial class DeeplinkPluginBuildHelpers
     {
-        private sealed class BuildHook : IPreprocessBuild
+        private static class AndroidDeeplinkPluginHelper
         {
-            int IOrderedCallback.callbackOrder
+            private sealed class BuildHook : IPreprocessBuild
             {
-                get { return -2; }
-            }
-
-            void IPreprocessBuild.OnPreprocessBuild(BuildTarget target, string path)
-            {
-                BuildAndroidPluginFromScript();
-            }
-        }
-
-        [MenuItem("Tools/Deeplinks/Android/Build Android Plugin", priority = Constants.BaseMenuPriority + 1)]
-        private static void BuildAndroidPluginFromScript()
-        {
-            if (!CheckRequesities())
-            {
-                Debug.LogError("Cannot build the Android Deeplink Jar because some prerequisites are missing, check the logs.");
-                return;
-            }
-
-            CreateBuildConfigFile();
-
-            var parentPath = Directory.GetParent(GetContainingDirectoryPath().AsNativePath());
-            if (parentPath == null)
-            {
-                Debug.LogError("Path error.");
-                return;
-            }
-
-            var jarDestPath = PathUtil.Combine(parentPath.FullName, "UnityDeeplinks.jar");
-            if (File.Exists(jarDestPath))
-            {
-                PathUtil.EnsureFileIsWriteable(jarDestPath);
-            }
-
-            const string buildScriptName = "build_jar.ps1";
-            var buildScriptPath = PathUtil.Combine(parentPath.FullName, buildScriptName).AsNativePath();
-            var configFilePath = GetConfigFilePath();
-            Debug.Assert(File.Exists(buildScriptPath), "File.Exists(scriptPath)");
-            Debug.Assert(File.Exists(configFilePath), "File.Exists(configFilePath)");
-
-            int timeoutMilliseconds = 200 * 1000;
-            using (var outputWaitHandle = new AutoResetEvent(false))
-            using (var errorWaitHandle = new AutoResetEvent(false))
-            {
-                using (var process = new Process())
+                int IOrderedCallback.callbackOrder
                 {
-                    process.StartInfo = new ProcessStartInfo
+                    get { return -2; }
+                }
+
+                void IPreprocessBuild.OnPreprocessBuild(BuildTarget target, string path)
+                {
+                    BuildAndroidPluginFromScript();
+                }
+            }
+
+            [MenuItem("Tools/Deeplinks/Android/Build Android Plugin", priority = Constants.BaseMenuPriority + 1)]
+            private static void BuildAndroidPluginFromScript()
+            {
+                if (!CheckRequesities())
+                {
+                    Debug.LogError("Cannot build the Android Deeplink Jar because some prerequisites are missing, check the logs.");
+                    return;
+                }
+
+                CreateBuildConfigFile();
+
+                var parentPath = Directory.GetParent(GetContainingDirectoryPath().AsNativePath());
+                if (parentPath == null)
+                {
+                    Debug.LogError("Path error.");
+                    return;
+                }
+
+                var jarDestPath = PathUtil.Combine(parentPath.FullName, "UnityDeeplinks.jar");
+                if (File.Exists(jarDestPath))
+                {
+                    PathUtil.EnsureFileIsWriteable(jarDestPath);
+                }
+
+                const string buildScriptName = "build_jar.ps1";
+                var buildScriptPath = PathUtil.Combine(parentPath.FullName, buildScriptName).AsNativePath();
+                var configFilePath = GetConfigFilePath();
+                Debug.Assert(File.Exists(buildScriptPath), "File.Exists(scriptPath)");
+                Debug.Assert(File.Exists(configFilePath), "File.Exists(configFilePath)");
+
+                int timeoutMilliseconds = 200 * 1000;
+                using (var outputWaitHandle = new AutoResetEvent(false))
+                using (var errorWaitHandle = new AutoResetEvent(false))
+                {
+                    using (var process = new Process())
                     {
-                        FileName = "powershell.exe",
-                        Arguments = string.Format(@"{0} '{1}'", buildScriptPath, configFilePath),
-                        WorkingDirectory = parentPath.FullName,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true
-                    };
-                    process.OutputDataReceived += (_, e) =>
-                    {
-                        if (e.Data == null)
+                        process.StartInfo = new ProcessStartInfo
                         {
-                            // ReSharper disable once AccessToDisposedClosure
-                            outputWaitHandle.Set();
+                            FileName = "powershell.exe",
+                            Arguments = string.Format(@"{0} '{1}'", buildScriptPath, configFilePath),
+                            WorkingDirectory = parentPath.FullName,
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            CreateNoWindow = true
+                        };
+                        process.OutputDataReceived += (_, e) =>
+                        {
+                            if (e.Data == null)
+                            {
+                                // ReSharper disable once AccessToDisposedClosure
+                                outputWaitHandle.Set();
+                            }
+                            else
+                            {
+                                Debug.Log(buildScriptName + ": " + e.Data);
+                            }
+                        };
+                        process.ErrorDataReceived += (_, e) =>
+                        {
+                            if (e.Data == null)
+                            {
+                                // ReSharper disable once AccessToDisposedClosure
+                                errorWaitHandle.Set();
+                            }
+                            else
+                            {
+                                Debug.LogError(buildScriptName + " (error): " + e.Data);
+                            }
+                        };
+
+                        process.Start();
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+
+                        if (process.WaitForExit(timeoutMilliseconds) && process.WaitForExit(0)
+                                                                     && outputWaitHandle.WaitOne(timeoutMilliseconds)
+                                                                     && errorWaitHandle.WaitOne(timeoutMilliseconds))
+                        {
+                            Debug.Log(buildScriptName + " " + (process.ExitCode == 0 ? " complete!" : " failed!"));
+
+                            // Make sure Unity imports the newly created jar if it did not exist
+                            AssetDatabase.Refresh();
                         }
                         else
                         {
-                            Debug.Log(buildScriptName + ": " + e.Data);
+                            Debug.Log(buildScriptName + " timed out...?");
                         }
-                    };
-                    process.ErrorDataReceived += (_, e) =>
-                    {
-                        if (e.Data == null)
-                        {
-                            // ReSharper disable once AccessToDisposedClosure
-                            errorWaitHandle.Set();
-                        }
-                        else
-                        {
-                            Debug.LogError(buildScriptName + " (error): " + e.Data);
-                        }
-                    };
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-
-                    if (process.WaitForExit(timeoutMilliseconds) && process.WaitForExit(0)
-                                                                 && outputWaitHandle.WaitOne(timeoutMilliseconds)
-                                                                 && errorWaitHandle.WaitOne(timeoutMilliseconds))
-                    {
-                        Debug.Log(buildScriptName + " " + (process.ExitCode == 0 ? " complete!" : " failed!"));
-
-                        // Make sure Unity imports the newly created jar if it did not exist
-                        AssetDatabase.Refresh();
-                    }
-                    else
-                    {
-                        Debug.Log(buildScriptName + " timed out...?");
                     }
                 }
             }
-        }
 
-        [MenuItem("Tools/Deeplinks/Android/Refresh Build Config", priority = Constants.BaseMenuPriority + 1)]
-        private static void RefreshBuildConfig()
-        {
-            if (!CheckRequesities())
+            [MenuItem("Tools/Deeplinks/Android/Refresh Build Config", priority = Constants.BaseMenuPriority + 1)]
+            private static void RefreshBuildConfig()
             {
-                Debug.LogError("Cannot refresh/regenerate the build config file because some prerequisites are missing, check the logs.");
-                return;
-            }
-
-            CreateBuildConfigFile();
-        }
-
-        private static void CreateBuildConfigFile()
-        {
-            var configFilePath = GetConfigFilePath();
-            var json = EditorJsonUtility.ToJson(ConstructJarConfig(), true);
-            Debug.Log("Saving config @ " + configFilePath);
-            Debug.Log("config values :\n" + json);
-            File.WriteAllText(configFilePath, json);
-        }
-
-        private static string GetConfigFilePath()
-        {
-            // Using folder name 'tmp' which is commonly ignored by source control
-            const string tempFolderName = "tmp";
-
-            var tempDirectory = new DirectoryInfo(PathUtil.Combine(PathUtil.ProjectRootPath, tempFolderName).AsNativePath());
-            if (!tempDirectory.Exists)
-            {
-                tempDirectory.Create();
-                tempDirectory.Refresh();
-            }
-
-            // (re)add hidden attribute if is not present
-            if ((tempDirectory.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
-            {
-                // Hidden folders are ignored by unity
-                tempDirectory.Attributes |= FileAttributes.Hidden;
-            }
-
-            return PathUtil.Combine(tempDirectory.FullName, "deeplink-android-build-config.json");
-        }
-
-        private static bool CheckRequesities()
-        {
-            if (string.IsNullOrEmpty(PathUtil.JdkPath))
-            {
-                Debug.LogError("JDK Path missing! Set it in 'Edit/Preferences... -> External Tools -> Android -> JDK'");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(PathUtil.AndroidSdkPath))
-            {
-                Debug.LogError("Android SDK path missing! Set it in 'Edit/Preferences...-> External Tools -> Android -> SDK'");
-                return false;
-            }
-
-            if (!HasAndroidSdkVersion((int)PlayerSettings.Android.targetSdkVersion))
-            {
-                Debug.LogError("It appears you do not have the selected target version of the android sdk");
-                return false;
-            }
-
-            if (!HasAndroidSdkVersion((int)PlayerSettings.Android.minSdkVersion))
-            {
-                Debug.LogError("It appears you do not have the selected minimum version of the android sdk");
-                return false;
-            }
-
-            // Do not create helper-file if using default application identifier
-            if (GetAndroidPackageName().StartsWith("com.company", StringComparison.OrdinalIgnoreCase))
-            {
-                Debug.LogWarning("Default Android Package-Name in use: '" + GetAndroidPackageName() + "', it should be set to a non-default value");
-                return false;
-            }
-
-            return true;
-        }
-
-        private static JarBuildConfig ConstructJarConfig()
-        {
-            return new JarBuildConfig
-            {
-                UnityProjectRootPath = Directory.GetParent(Application.dataPath).FullName,
-                UnityEditorDataPath = EditorApplication.applicationContentsPath.AsNativePath(),
-                JdkPath = PathUtil.JdkPath,
-                AndroidSdkRoot = PathUtil.AndroidSdkPath,
-                AndroidPackageName = GetAndroidPackageName(),
-                AndroidMinSdkVersion = (int)PlayerSettings.Android.minSdkVersion,
-                AndroidTargetSdkVersion = (int)PlayerSettings.Android.targetSdkVersion
-            };
-        }
-
-        private static bool HasAndroidSdkVersion(int versionNumber)
-        {
-            var androidSdkPath = PathUtil.AndroidSdkPath;
-
-            if (string.IsNullOrEmpty(androidSdkPath))
-            {
-                Debug.LogError("Android SDK path missing! Set it in 'Edit/Preferences...-> External Tools -> Android -> SDK'");
-                return false;
-            }
-
-            // 'auto' in the android build settings corresponds to zero
-            if (versionNumber == 0)
-            {
-                if (Directory.GetDirectories(PathUtil.Combine(androidSdkPath, "platforms")).Any(s => s.Contains("android-")))
+                if (!CheckRequesities())
                 {
-                    return true;
+                    Debug.LogError("Cannot refresh/regenerate the build config file because some prerequisites are missing, check the logs.");
+                    return;
                 }
 
-                Debug.LogWarning("No android platform sdk detected, please install some.");
-                return false;
+                CreateBuildConfigFile();
+            }
+
+            private static void CreateBuildConfigFile()
+            {
+                var configFilePath = GetConfigFilePath();
+                var json = EditorJsonUtility.ToJson(ConstructJarConfig(), true);
+                Debug.Log("Saving config @ " + configFilePath);
+                Debug.Log("config values :\n" + json);
+                File.WriteAllText(configFilePath, json);
+            }
+
+            private static string GetConfigFilePath()
+            {
+                // Using folder name 'tmp' which is commonly ignored by source control
+                const string tempFolderName = "tmp";
+
+                var tempDirectory = new DirectoryInfo(PathUtil.Combine(PathUtil.ProjectRootPath, tempFolderName).AsNativePath());
+                if (!tempDirectory.Exists)
+                {
+                    tempDirectory.Create();
+                    tempDirectory.Refresh();
+                }
+
+                // (re)add hidden attribute if is not present
+                if ((tempDirectory.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
+                {
+                    // Hidden folders are ignored by unity
+                    tempDirectory.Attributes |= FileAttributes.Hidden;
+                }
+
+                return PathUtil.Combine(tempDirectory.FullName, "deeplink-android-build-config.json");
+            }
+
+            private static bool CheckRequesities()
+            {
+                if (string.IsNullOrEmpty(PathUtil.JdkPath))
+                {
+                    Debug.LogError("JDK Path missing! Set it in 'Edit/Preferences... -> External Tools -> Android -> JDK'");
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(PathUtil.AndroidSdkPath))
+                {
+                    Debug.LogError("Android SDK path missing! Set it in 'Edit/Preferences...-> External Tools -> Android -> SDK'");
+                    return false;
+                }
+
+                if (!HasAndroidSdkVersion((int)PlayerSettings.Android.targetSdkVersion))
+                {
+                    Debug.LogError("It appears you do not have the selected target version of the android sdk");
+                    return false;
+                }
+
+                if (!HasAndroidSdkVersion((int)PlayerSettings.Android.minSdkVersion))
+                {
+                    Debug.LogError("It appears you do not have the selected minimum version of the android sdk");
+                    return false;
+                }
+
+                // Do not create helper-file if using default application identifier
+                if (GetAndroidPackageName().StartsWith("com.company", StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.LogWarning("Default Android Package-Name in use: '" + GetAndroidPackageName() + "', it should be set to a non-default value");
+                    return false;
+                }
+
+                return true;
+            }
+
+            private static JarBuildConfig ConstructJarConfig()
+            {
+                return new JarBuildConfig
+                {
+                    UnityProjectRootPath = Directory.GetParent(Application.dataPath).FullName,
+                    UnityEditorDataPath = EditorApplication.applicationContentsPath.AsNativePath(),
+                    JdkPath = PathUtil.JdkPath,
+                    AndroidSdkRoot = PathUtil.AndroidSdkPath,
+                    AndroidPackageName = GetAndroidPackageName(),
+                    AndroidMinSdkVersion = (int)PlayerSettings.Android.minSdkVersion,
+                    AndroidTargetSdkVersion = (int)PlayerSettings.Android.targetSdkVersion
+                };
+            }
+
+            private static bool HasAndroidSdkVersion(int versionNumber)
+            {
+                var androidSdkPath = PathUtil.AndroidSdkPath;
+
+                if (string.IsNullOrEmpty(androidSdkPath))
+                {
+                    Debug.LogError("Android SDK path missing! Set it in 'Edit/Preferences...-> External Tools -> Android -> SDK'");
+                    return false;
+                }
+
+                // 'auto' in the android build settings corresponds to zero
+                if (versionNumber == 0)
+                {
+                    if (Directory.GetDirectories(PathUtil.Combine(androidSdkPath, "platforms")).Any(s => s.Contains("android-")))
+                    {
+                        return true;
+                    }
+
+                    Debug.LogWarning("No android platform sdk detected, please install some.");
+                    return false;
+
+                }
+
+                return Directory.Exists(PathUtil.Combine(androidSdkPath, "platforms", "android-" + versionNumber).AsNativePath());
 
             }
 
-            return Directory.Exists(PathUtil.Combine(androidSdkPath, "platforms", "android-" + versionNumber).AsNativePath());
+            private static string GetAndroidPackageName()
+            {
+                return PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android);
+            }
 
-        }
+            private static string GetContainingDirectoryPath()
+            {
+                return Directory.GetParent(PathUtil.GetScriptPath(typeof(AndroidDeeplinkPluginHelper))).FullName;
+            }
 
-        private static string GetAndroidPackageName()
-        {
-            return PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android);
-        }
+            [Serializable]
+            private class JarBuildConfig
+            {
+                public string UnityProjectRootPath;
 
-        private static string GetContainingDirectoryPath()
-        {
-            return Directory.GetParent(PathUtil.GetScriptPath(typeof(AndroidDeeplinkPluginHelper))).FullName;
-        }
+                public string AndroidPackageName;
 
-        [Serializable]
-        private class JarBuildConfig
-        {
-            public string UnityProjectRootPath;
+                public string UnityEditorDataPath;
 
-            public string AndroidPackageName;
+                public string AndroidSdkRoot;
 
-            public string UnityEditorDataPath;
+                public string JdkPath;
 
-            public string AndroidSdkRoot;
+                public int AndroidMinSdkVersion;
 
-            public string JdkPath;
-
-            public int AndroidMinSdkVersion;
-
-            public int AndroidTargetSdkVersion;
+                public int AndroidTargetSdkVersion;
+            }
         }
     }
 
