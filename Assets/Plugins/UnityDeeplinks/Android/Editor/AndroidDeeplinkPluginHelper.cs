@@ -262,12 +262,7 @@ namespace Deeplinks
 
         public static string Combine(string first, string second, params string[] subsequentParts)
         {
-            return Path.Combine(Path.Combine(first, second), Combine(subsequentParts));
-        }
-
-        public static string Combine(IEnumerable<string> pathParts)
-        {
-            return pathParts.Aggregate(string.Empty, Path.Combine);
+            return Path.Combine(Path.Combine(first, second), subsequentParts.Aggregate(string.Empty, Path.Combine));
         }
 
         public static string AsNativePath(this string path)
