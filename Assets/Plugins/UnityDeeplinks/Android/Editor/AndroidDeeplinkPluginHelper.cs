@@ -189,8 +189,8 @@ namespace Deeplinks
             {
                 UnityProjectRootPath = Directory.GetParent(Application.dataPath).FullName,
                 UnityEditorDataPath = EditorApplication.applicationContentsPath.AsNativePath(),
-                JdkPath = EditorPrefs.GetString("JdkPath").AsNativePath(),
-                AndroidSdkRoot = EditorPrefs.GetString("AndroidSdkRoot").AsNativePath(),
+                JdkPath = PathUtil.JdkPath,
+                AndroidSdkRoot = PathUtil.AndroidSdkPath,
                 AndroidPackageName = GetAndroidPackageName(),
                 AndroidMinSdkVersion = (int)PlayerSettings.Android.minSdkVersion,
                 AndroidTargetSdkVersion = (int)PlayerSettings.Android.targetSdkVersion
@@ -199,7 +199,7 @@ namespace Deeplinks
 
         private static bool HasAndroidSdkVersion(int versionNumber)
         {
-            var androidSdkPath = EditorPrefs.GetString("AndroidSdkRoot");
+            var androidSdkPath = PathUtil.AndroidSdkPath;
 
             if (string.IsNullOrEmpty(androidSdkPath))
             {
@@ -301,6 +301,16 @@ namespace Deeplinks
         public static string ProjectRootPath
         {
             get { return Directory.GetParent(Application.dataPath).FullName; }
+        }
+
+        public static string AndroidSdkPath
+        {
+            get { return EditorPrefs.GetString("AndroidSdkRoot").AsNativePath(); }
+        }
+
+        public static string JdkPath
+        {
+            get { return EditorPrefs.GetString("JdkPath").AsNativePath(); }
         }
 
         public static bool EnsureFileIsWriteable(string fileNamePath)
