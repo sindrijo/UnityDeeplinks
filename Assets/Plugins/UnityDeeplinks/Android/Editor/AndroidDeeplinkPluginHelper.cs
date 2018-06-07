@@ -161,14 +161,16 @@ namespace Deeplinks
                 return false;
             }
 
-            if (!HasAndroidSdkVersion((int) PlayerSettings.Android.targetSdkVersion))
+            if (!HasAndroidSdkVersion((int)PlayerSettings.Android.targetSdkVersion))
             {
-                Debug.LogWarning("It appears you do not have the selected minimum version of the android sdk, the");
+                Debug.LogError("It appears you do not have the selected target version of the android sdk");
+                return false;
             }
 
-            if (!HasAndroidSdkVersion((int) PlayerSettings.Android.minSdkVersion))
+            if (!HasAndroidSdkVersion((int)PlayerSettings.Android.minSdkVersion))
             {
-                Debug.LogWarning("It appears you do not have the selected minimum version of the android sdk");
+                Debug.LogError("It appears you do not have the selected minimum version of the android sdk");
+                return false;
             }
 
             // Do not create helper-file if using default application identifier
