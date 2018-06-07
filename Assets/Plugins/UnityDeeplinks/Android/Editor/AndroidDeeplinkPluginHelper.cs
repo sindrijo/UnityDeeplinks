@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -12,6 +12,19 @@ namespace Deeplinks
 {
     public static class AndroidDeeplinkPluginHelper
     {
+        private sealed class BuildHook : IPreprocessBuild
+        {
+            int IOrderedCallback.callbackOrder
+            {
+                get { return -2; }
+            }
+
+            void IPreprocessBuild.OnPreprocessBuild(BuildTarget target, string path)
+            {
+                BuildAndroidPluginFromScript();
+            }
+        }
+
         [MenuItem("Tools/Deeplinks/Android/Build Android Plugin", priority = Constants.BaseMenuPriority + 1)]
         private static void BuildAndroidPluginFromScript()
         {
