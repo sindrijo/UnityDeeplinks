@@ -23,7 +23,7 @@ namespace Deeplinks
 
             CreateBuildConfigFile();
 
-            var parentPath = Directory.GetParent(GetContainingDirectoryPath().Replace("/", @"\"));
+            var parentPath = Directory.GetParent(GetContainingDirectoryPath().AsNativePath());
             if (parentPath == null)
             {
                 Debug.LogError("Path error.");
