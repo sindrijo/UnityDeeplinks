@@ -10,7 +10,7 @@ namespace Deeplinks
     public class AndroidManifestHelper
         : IPreprocessBuild, IPostprocessBuild
     {
-        private static readonly string s_androidManifestPath = PathEx.Combine(Application.dataPath, "Plugins", "Android", "AndroidManifest.xml").AsNativePath();
+        private static readonly string s_androidManifestPath = PathUtil.Combine(Application.dataPath, "Plugins", "Android", "AndroidManifest.xml").AsNativePath();
 
         private static readonly string s_androidManifestBackupPath = Path.Combine(Path.Combine(Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/') + 1), "Temp"), "AndroidManifest.xml.backup").AsNativePath();
 

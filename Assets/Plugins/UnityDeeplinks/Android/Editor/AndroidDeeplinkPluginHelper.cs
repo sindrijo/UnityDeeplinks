@@ -31,7 +31,7 @@ namespace Deeplinks
             }
 
             const string buildScriptName = "build_jar.ps1";
-            var buildScriptPath = PathEx.Combine(parentPath.FullName, buildScriptName).AsNativePath();
+            var buildScriptPath = PathUtil.Combine(parentPath.FullName, buildScriptName).AsNativePath();
             var configFilePath = GetConfigFilePath();
             Debug.Assert(File.Exists(buildScriptPath), "File.Exists(scriptPath)");
             Debug.Assert(File.Exists(configFilePath), "File.Exists(configFilePath)");
@@ -125,9 +125,7 @@ namespace Deeplinks
             // Using folder name 'tmp' which is commonly ignored by source control
             const string tempFolderName = "tmp";
 
-            const string configFileName = "deeplink-android-build-config" + ".json";
-
-            var tempDirectory = new DirectoryInfo(PathEx.Combine(PathEx.ProjectRootPath, tempFolderName).AsNativePath());
+            var tempDirectory = new DirectoryInfo(PathUtil.Combine(PathUtil.ProjectRootPath, tempFolderName).AsNativePath());
             if (!tempDirectory.Exists)
             {
                 tempDirectory.Create();
@@ -141,18 +139,18 @@ namespace Deeplinks
                 tempDirectory.Attributes |= FileAttributes.Hidden;
             }
 
-            return PathEx.Combine(tempDirectory.FullName, configFileName);
+            return PathUtil.Combine(tempDirectory.FullName, "deeplink-android-build-config.json");
         }
 
         private static bool CheckRequesities()
         {
-            if (string.IsNullOrEmpty(EditorPrefs.GetString("JdkPath")))
+            if (string.IsNullOrEmpty(PathUtil.JdkPath))
             {
                 Debug.LogError("JDK Path missing! Set it in 'Edit/Preferences... -> External Tools -> Android -> JDK'");
                 return false;
             }
 
-            if (string.IsNullOrEmpty(EditorPrefs.GetString("AndroidSdkRoot")))
+            if (string.IsNullOrEmpty(PathUtil.AndroidSdkPath))
             {
                 Debug.LogError("Android SDK path missing! Set it in 'Edit/Preferences...-> External Tools -> Android -> SDK'");
                 return false;
@@ -207,7 +205,7 @@ namespace Deeplinks
             // 'auto' in the android build settings corresponds to zero
             if (versionNumber == 0)
             {
-                if (Directory.GetDirectories(PathEx.Combine(androidSdkPath, "platforms").AsNativePath()).Any(s => s.Contains("android-")))
+                if (Directory.GetDirectories(PathUtil.Combine(androidSdkPath, "platforms")).Any(s => s.Contains("android-")))
                 {
                     return true;
                 }
@@ -217,7 +215,7 @@ namespace Deeplinks
 
             }
 
-            return Directory.Exists(PathEx.Combine(androidSdkPath, "platforms", "android-" + versionNumber).AsNativePath());
+            return Directory.Exists(PathUtil.Combine(androidSdkPath, "platforms", "android-" + versionNumber).AsNativePath());
 
         }
 
@@ -228,7 +226,7 @@ namespace Deeplinks
 
         private static string GetContainingDirectoryPath()
         {
-            return Directory.GetParent(PathEx.GetScriptPath(typeof(AndroidDeeplinkPluginHelper))).FullName;
+            return Directory.GetParent(PathUtil.GetScriptPath(typeof(AndroidDeeplinkPluginHelper))).FullName;
         }
 
         [Serializable]
@@ -250,7 +248,7 @@ namespace Deeplinks
         }
     }
 
-    public static class PathEx
+    public static class PathUtil
     {
         public static string Combine(string first, string second)
         {

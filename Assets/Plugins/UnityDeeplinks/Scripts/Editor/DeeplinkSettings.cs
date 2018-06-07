@@ -62,7 +62,7 @@ namespace Deeplinks
             {
                 if (string.IsNullOrEmpty(s_filePath))
                 {
-                    s_filePath = PathEx.Combine(Directory.GetParent(Application.dataPath).FullName,
+                    s_filePath = PathUtil.Combine(Directory.GetParent(Application.dataPath).FullName,
                         "ProjectSettings", "DeeplinkSettings.asset");
                 }
 
