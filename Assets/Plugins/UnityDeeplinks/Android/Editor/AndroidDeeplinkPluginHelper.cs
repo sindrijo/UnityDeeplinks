@@ -87,7 +87,7 @@ namespace Deeplinks
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
 
-                    if (process.WaitForExit(timeoutMilliseconds) && process.WaitForExit(0) 
+                    if (process.WaitForExit(timeoutMilliseconds) && process.WaitForExit(0)
                                                                  && outputWaitHandle.WaitOne(timeoutMilliseconds)
                                                                  && errorWaitHandle.WaitOne(timeoutMilliseconds))
                     {
@@ -273,11 +273,11 @@ namespace Deeplinks
             }
 
             const char unsupportedPathSeparator
-    #if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
                 = '/';
-    #else
+#else
             = '\\';
-    #endif
+#endif
 
             if (path.IndexOf(unsupportedPathSeparator) > 0)
             {
