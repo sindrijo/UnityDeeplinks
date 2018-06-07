@@ -199,7 +199,7 @@ namespace Deeplinks
 
         private static bool HasAndroidSdkVersion(int versionNumber)
         {
-            var androidSdkPath = EditorPrefs.GetString("AndroidSdkRoot").AsNativePath();
+            var androidSdkPath = EditorPrefs.GetString("AndroidSdkRoot");
 
             if (string.IsNullOrEmpty(androidSdkPath))
             {
@@ -210,7 +210,7 @@ namespace Deeplinks
             // 'auto' in the android build settings corresponds to zero
             if (versionNumber == 0)
             {
-                if (Directory.GetDirectories(PathEx.Combine(androidSdkPath, "platforms")).Any(s => s.Contains("android-")))
+                if (Directory.GetDirectories(PathEx.Combine(androidSdkPath, "platforms").AsNativePath()).Any(s => s.Contains("android-")))
                 {
                     return true;
                 }
@@ -220,7 +220,7 @@ namespace Deeplinks
 
             }
 
-            return Directory.Exists(PathEx.Combine(androidSdkPath, "platforms", "android-" + versionNumber));
+            return Directory.Exists(PathEx.Combine(androidSdkPath, "platforms", "android-" + versionNumber).AsNativePath());
 
         }
 
